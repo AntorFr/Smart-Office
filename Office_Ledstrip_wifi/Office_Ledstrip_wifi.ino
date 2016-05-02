@@ -14,7 +14,6 @@
 #include <ESP8266WebServer.h>
 #include <DHT.h>
 #include <Adafruit_NeoPixel.h>
-#include "Motifs"
 
 #define DHTTYPE DHT11   // DHT Shield uses DHT 11
 #define DHTPIN D4       // DHT Shield uses pin D4
@@ -26,7 +25,7 @@ const char* password = "";
 
 // LED Strip
 #define LED_COUNT 140
-rgb_color colors[LED_COUNT];
+
 
 // Listen for HTTP requests on standard port 80
 ESP8266WebServer server(80);
@@ -47,20 +46,13 @@ char str_humidity[10], str_temperature[10];  // Rounded sensor values and as str
 unsigned long previousMillis = 0;            // When the sensor was last read
 const long interval = 2000;                  // Wait this long until reading again
 
+String LEDON = String(50);//LED status flag
+int ledspeed = 25; 
+int RGB[3] = {0,0,150};
+
+
 void handle_root() {
   server.send(200, "text/plain", "WeMos DHT Server. Get /temp or /humidity");
-  wifly.sendChunkln(F("<xml>"));
-  wifly.sendChunkln(F("<title>WiFly HTTP Server Example</title>"));
-  wifly.sendChunkln(F("<h1>"));
-  wifly.sendChunkln(F("<p>Hello</p>"));
-  wifly.sendChunkln(F("</h1>"));
-  wifly.sendChunkln(F("<form name=\"input\" action=\"/\" method=\"post\">"));
-  wifly.sendChunkln(F("Username:"));
-  wifly.sendChunkln(F("<input type=\"text\" name=\"user\" />"));
-  wifly.sendChunkln(F("<input type=\"submit\" value=\"Submit\" />"));
-  wifly.sendChunkln(F("</form>")); 
-  wifly.sendChunkln(F("</html>"));
-  wifly.sendChunkln();
   delay(100);
 }
 
@@ -104,9 +96,12 @@ void setup(void)
   // Open the Arduino IDE Serial Monitor to see what the code is doing
   Serial.begin(9600);
   dht.begin();
+ 
   
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
+  
+  LEDON = "Blink";
 
   Serial.println("WeMos DHT Server");
   Serial.println("");
@@ -160,3 +155,4 @@ void loop(void)
   // Listen for http requests
   server.handleClient();
 }
+
