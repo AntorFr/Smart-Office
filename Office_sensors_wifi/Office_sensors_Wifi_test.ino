@@ -1,4 +1,3 @@
-
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
@@ -31,12 +30,16 @@ void setup(void)
   pinMode(MSR_PIN, INPUT);
   pinMode(MSL_PIN, INPUT);
   
+  pinMode(BUILTIN_LED, OUTPUT);  // initialize onboard LED as output
+
+  
   // Open the Arduino IDE Serial Monitor to see what the code is doing
   Serial.begin(9600);
 
   Serial.println("WeMos Motion Client");
   Serial.println("");
 
+// CONNECTION WIFI
   // Connect to your WiFi network
   WiFi.begin(ssid);
   Serial.print("Connecting");
@@ -55,6 +58,7 @@ void setup(void)
   Serial.print("Mac adresse: ");
   Serial.println(WiFi.macAddress());
   Serial.println("");
+// END CONNECTION WIFI
   
   //read_motion_sensor();
   
@@ -66,6 +70,7 @@ void setup(void)
 
 void loop(void)
 {
+	digitalWrite(BUILTIN_LED, LOW);   // turn off LED with voltage LOW
     read_motion_sensor();
 }
 
@@ -73,10 +78,11 @@ void read_motion_sensor(void) {
   unsigned long currentMillis = millis();
   
   int old_MSR = MSR;
-
+  int old_MSL = MSL;
   
   MSR = digitalRead(MSR_PIN);
-
+  MSL = digitalRead(MSL_PIN);
+  
   if (old_MSR!=MSR && MSR == LOW) {
     Serial.println("MSR to low");
   }
@@ -85,7 +91,15 @@ void read_motion_sensor(void) {
     cnt_MSR++;
     Serial.println("cnt_MSR :"+String(cnt_MSR));
   }
-
+  
+  if (old_MSL!=MSL && MSL == LOW) {
+    Serial.println("MSL to low");
+  }
+   
+  if (old_MSL!=MSL && MSL == HIGH) {
+    cnt_MSR++;
+    Serial.println("cnt_MSL :"+String(cnt_MSL));
+  }
     
   if (currentMillis - previousMillis >= sensor_interval) {
       previousMillis = currentMillis;
@@ -100,6 +114,14 @@ void read_motion_sensor(void) {
       Hist_R[0] = cnt_MSR;      
       cnt_MSR = 0;
 
+	  for(i=9;i>0;i--){
+        Hist_L[i]=Hist_L[i-1];
+      }
+      
+      Hist_L[0] = cnt_MSL;      
+      cnt_MSL = 0;
+	  
+	  
       int somme = 0;
       int old_presence = presence;
       
@@ -142,6 +164,8 @@ void eedomus_writedata(String periph_id, String value){
   data="action=periph.value&periph_id="+periph_id+"&value="+value+"&api_secret="+api_secret+"&api_user="+api_user;
   
   Serial.println(data);
+  digitalWrite(BUILTIN_LED, HIGH);  // turn on LED with voltage HIGH
+
  
   // Listen for http requests
   if (client.connect("api.eedomus.com",80)) { // REPLACE WITH YOUR SERVER ADDRESS
