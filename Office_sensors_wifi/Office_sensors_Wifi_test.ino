@@ -77,29 +77,29 @@ void loop(void)
 void read_motion_sensor(void) {
   unsigned long currentMillis = millis();
   
-  int old_MSR = MSR;
-  int old_MSL = MSL;
+  int old_MS = MS;
   
   MSR = digitalRead(MSR_PIN);
   MSL = digitalRead(MSL_PIN);
   
-  if (old_MSR!=MSR && MSR == LOW) {
-    Serial.println("MSR to low");
-  }
-   
-  if (old_MSR!=MSR && MSR == HIGH) {
-    cnt_MSR++;
-    Serial.println("cnt_MSR :"+String(cnt_MSR));
+   if (MSR==MSL ) {
+    Serial.println("MS to MSR/MSL");
+	MS = MSR;
+  } else {
+	  MS = 0;
   }
   
-  if (old_MSL!=MSL && MSL == LOW) {
-    Serial.println("MSL to low");
+   
+  if (old_MS!=MS && MS == HIGH) {
+    cnt_MS++;
+    Serial.println("cnt_MS :"+String(cnt_MS));
+  }
+  
+  if (old_MS!=MS && MS == LOW) {
+    Serial.println("MS to low");
   }
    
-  if (old_MSL!=MSL && MSL == HIGH) {
-    cnt_MSR++;
-    Serial.println("cnt_MSL :"+String(cnt_MSL));
-  }
+
     
   if (currentMillis - previousMillis >= sensor_interval) {
       previousMillis = currentMillis;
@@ -108,26 +108,18 @@ void read_motion_sensor(void) {
       
       //memcpy(&Hist_R[1], &Hist_R[0], (sizeof(Hist_R)-1)*sizeof(*Hist_R));
       for(i=9;i>0;i--){
-        Hist_R[i]=Hist_R[i-1];
+        Hist[i]=Hist[i-1];
       }
       
-      Hist_R[0] = cnt_MSR;      
-      cnt_MSR = 0;
-
-	  for(i=9;i>0;i--){
-        Hist_L[i]=Hist_L[i-1];
-      }
-      
-      Hist_L[0] = cnt_MSL;      
-      cnt_MSL = 0;
-	  
+      Hist[0] = cnt_MS;      
+      cnt_MS = 0;
 	  
       int somme = 0;
       int old_presence = presence;
       
       if(!presence) {
          for (int i = 0 ; i < 10 ; i++) {   
-          somme += Hist_R[i];
+          somme += Hist[i];
            if(i<3 && somme > 5) {
              presence = true;
              Serial.println("Personne & Somme (3) = "+String(somme));
@@ -141,7 +133,7 @@ void read_motion_sensor(void) {
 
       } else {
         for (int i = 0 ; i < 10 ; i++) {   
-          somme += Hist_R[i];
+          somme += Hist[i];
          }
          Serial.println("Presence et Somme (10) = "+String(somme));
          if (somme < 3) {
