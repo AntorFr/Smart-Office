@@ -151,10 +151,10 @@ void read_motion_sensor(void) {
     if(old_presence != presence) {
       Serial.println("Presence vient de changer");
       lastSend = currentMillis;
-      eedomus_writedata("390035", (presence?"1":"O"));
+      eedomus_writedata("397578", (presence?"1":"O"));
     } else if (currentMillis - lastSend >= updt_interval) { // heartbeat checkup
       lastSend = currentMillis;
-      eedomus_writedata("390035", (presence?"1":"O"));
+      eedomus_writedata("397578", (presence?"1":"O"));
     }
   }
 }
