@@ -17,8 +17,8 @@ int Hist_R[10], Hist_L[10], Hist[10];
 
 unsigned long previousMillis = 0;
 unsigned long lastSend = 0;
-const long sensor_interval = 60000;  // Wait this long until send again
-const long updt_interval   = 3000000;  // hearbeat - this long until send again if nothing change
+const unsigned long sensor_interval = 60000;  // Wait this long until send again
+const unsigned long updt_interval   = 3000000;  // hearbeat - this long until send again if nothing change
 
 const String api_user = "4a0RDk";
 const String api_secret = "c9pBLXmnSaoFiDcA";
