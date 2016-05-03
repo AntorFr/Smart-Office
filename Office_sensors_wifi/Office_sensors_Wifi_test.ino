@@ -32,16 +32,8 @@ void setup(void)
   pinMode(BUILTIN_LED, OUTPUT);  // initialize onboard LED as output
 
   
-<<<<<<< HEAD
-  pinMode(BUILTIN_LED, OUTPUT);  // initialize onboard LED as output
-
-  
-  // Open the Arduino IDE Serial Monitor to see what the code is doing
-  Serial.begin(9600);
-=======
   // Open the Arduino IDE //Serial Monitor to see what the code is doing
   //Serial.begin(9600);
->>>>>>> master
 
   //Serial.println("WeMos Motion Client");
   //Serial.println("");
@@ -56,17 +48,6 @@ void setup(void)
     delay(500);
     //Serial.print(".");
   }
-<<<<<<< HEAD
-  Serial.println("");
-  Serial.print("Connected to: ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-  Serial.println("");
-  Serial.print("Mac adresse: ");
-  Serial.println(WiFi.macAddress());
-  Serial.println("");
-=======
   //Serial.println("");
   //Serial.print("Connected to: ");
   //Serial.println(ssid);
@@ -76,7 +57,6 @@ void setup(void)
   //Serial.print("Mac adresse: ");
   //Serial.println(WiFi.macAddress());
   //Serial.println("");
->>>>>>> master
 // END CONNECTION WIFI
   
   //read_motion_sensor();
@@ -89,11 +69,7 @@ void setup(void)
 
 void loop(void)
 {
-<<<<<<< HEAD
-	digitalWrite(BUILTIN_LED, LOW);   // turn off LED with voltage LOW
-=======
     digitalWrite(BUILTIN_LED, LOW);   // turn off LED with voltage LOW
->>>>>>> master
     read_motion_sensor();
 }
 
@@ -105,23 +81,6 @@ void read_motion_sensor(void) {
   MSR = digitalRead(MSR_PIN);
   MSL = digitalRead(MSL_PIN);
   
-<<<<<<< HEAD
-   if (MSR==MSL ) {
-    Serial.println("MS to MSR/MSL");
-	MS = MSR;
-  } else {
-	  MS = 0;
-  }
-  
-   
-  if (old_MS!=MS && MS == HIGH) {
-    cnt_MS++;
-    Serial.println("cnt_MS :"+String(cnt_MS));
-  }
-  
-  if (old_MS!=MS && MS == LOW) {
-    Serial.println("MS to low");
-=======
   if (MSR == true) {
     //Serial.println("MSR = true");
   }
@@ -145,7 +104,6 @@ void read_motion_sensor(void) {
   
   if (old_MS!=MS && MS == LOW) {
     //Serial.println("MS to low");
->>>>>>> master
   }
    
 
@@ -206,11 +164,7 @@ void eedomus_writedata(String periph_id, String value){
   String data="";
   data="action=periph.value&periph_id="+periph_id+"&value="+value+"&api_secret="+api_secret+"&api_user="+api_user;
   
-<<<<<<< HEAD
-  Serial.println(data);
-=======
   //Serial.println(data);
->>>>>>> master
   digitalWrite(BUILTIN_LED, HIGH);  // turn on LED with voltage HIGH
 
  
