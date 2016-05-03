@@ -63,6 +63,8 @@ void setup(void)
   
   MSR = digitalRead(MSR_PIN);
   MSL = digitalRead(MSL_PIN);
+  
+  eedomus_writedata("397578", 0);
 
 }
 
