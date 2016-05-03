@@ -2,14 +2,14 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 
-#define MSR_PIN D4       // Motion sensor Right Pin
+#define MSR_PIN D6       // Motion sensor Right Pin
 #define MSL_PIN D5       // Motion sensor Left Pin
 
 // Existing WiFi network
 const char* ssid     = "Niji-Phone";
 const char* password = "";
 
-int MSR = 0, MSL = 0, MS =0;
+bool MSR = 0, MSL = 0, MS =0;
 int cnt_MSR = 0, cnt_MSL = 0, cnt_MS = 0;
 bool presence_R = false, presence_L = false, presence = false;
 int Hist_R[10], Hist_L[10], Hist[10];
@@ -29,26 +29,34 @@ void setup(void)
 {
   pinMode(MSR_PIN, INPUT);
   pinMode(MSL_PIN, INPUT);
+  pinMode(BUILTIN_LED, OUTPUT);  // initialize onboard LED as output
+
   
+<<<<<<< HEAD
   pinMode(BUILTIN_LED, OUTPUT);  // initialize onboard LED as output
 
   
   // Open the Arduino IDE Serial Monitor to see what the code is doing
   Serial.begin(9600);
+=======
+  // Open the Arduino IDE //Serial Monitor to see what the code is doing
+  //Serial.begin(9600);
+>>>>>>> master
 
-  Serial.println("WeMos Motion Client");
-  Serial.println("");
+  //Serial.println("WeMos Motion Client");
+  //Serial.println("");
 
 // CONNECTION WIFI
   // Connect to your WiFi network
   WiFi.begin(ssid);
-  Serial.print("Connecting");
+  //Serial.print("Connecting");
 
   // Wait for successful connection
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(".");
+    //Serial.print(".");
   }
+<<<<<<< HEAD
   Serial.println("");
   Serial.print("Connected to: ");
   Serial.println(ssid);
@@ -58,6 +66,17 @@ void setup(void)
   Serial.print("Mac adresse: ");
   Serial.println(WiFi.macAddress());
   Serial.println("");
+=======
+  //Serial.println("");
+  //Serial.print("Connected to: ");
+  //Serial.println(ssid);
+  //Serial.print("IP address: ");
+  //Serial.println(WiFi.localIP());
+  //Serial.println("");
+  //Serial.print("Mac adresse: ");
+  //Serial.println(WiFi.macAddress());
+  //Serial.println("");
+>>>>>>> master
 // END CONNECTION WIFI
   
   //read_motion_sensor();
@@ -70,7 +89,11 @@ void setup(void)
 
 void loop(void)
 {
+<<<<<<< HEAD
 	digitalWrite(BUILTIN_LED, LOW);   // turn off LED with voltage LOW
+=======
+    digitalWrite(BUILTIN_LED, LOW);   // turn off LED with voltage LOW
+>>>>>>> master
     read_motion_sensor();
 }
 
@@ -82,6 +105,7 @@ void read_motion_sensor(void) {
   MSR = digitalRead(MSR_PIN);
   MSL = digitalRead(MSL_PIN);
   
+<<<<<<< HEAD
    if (MSR==MSL ) {
     Serial.println("MS to MSR/MSL");
 	MS = MSR;
@@ -97,6 +121,31 @@ void read_motion_sensor(void) {
   
   if (old_MS!=MS && MS == LOW) {
     Serial.println("MS to low");
+=======
+  if (MSR == true) {
+    //Serial.println("MSR = true");
+  }
+  
+  if (MSL == true) {
+    //Serial.println("MSL = true");
+  }
+  
+  if (MSR== true && MSR == MSL ) {
+	MS = MSR;
+        //Serial.println("MS to MSR/MSL ("+String(MSR)+")");
+  } else {
+	  MS = 0;
+  }
+  
+   
+  if (old_MS!=MS && MS == HIGH) {
+    cnt_MS++;
+    //Serial.println("cnt_MS :"+String(cnt_MS));
+  }
+  
+  if (old_MS!=MS && MS == LOW) {
+    //Serial.println("MS to low");
+>>>>>>> master
   }
    
 
@@ -104,7 +153,7 @@ void read_motion_sensor(void) {
   if (currentMillis - previousMillis >= sensor_interval) {
       previousMillis = currentMillis;
       int i;
-      Serial.println("Update");
+      //Serial.println("Update");
       
       //memcpy(&Hist_R[1], &Hist_R[0], (sizeof(Hist_R)-1)*sizeof(*Hist_R));
       for(i=9;i>0;i--){
@@ -122,26 +171,28 @@ void read_motion_sensor(void) {
           somme += Hist[i];
            if(i<3 && somme > 5) {
              presence = true;
-             Serial.println("Personne & Somme (3) = "+String(somme));
+             //Serial.println("Personne & Somme (3) = "+String(somme));
              break;
            }
          }
          if (somme >= 10) {
             presence = true;
-            Serial.println("Personne & Somme (10) = "+String(somme));
+            //Serial.println("Personne & Somme (10) = "+String(somme));
+         } else {
+            //Serial.println("Personne & Somme (>10) = "+String(somme));
          }
 
       } else {
         for (int i = 0 ; i < 10 ; i++) {   
           somme += Hist[i];
          }
-         Serial.println("Presence et Somme (10) = "+String(somme));
+         //Serial.println("Presence et Somme (10) = "+String(somme));
          if (somme < 3) {
             presence = false;
          }
       }
     if(old_presence != presence) {
-      Serial.println("Presence vient de changer");
+      //Serial.println("Presence vient de changer");
       lastSend = currentMillis;
       eedomus_writedata("397578", (presence?"1":"O"));
     } else if (currentMillis - lastSend >= updt_interval) { // heartbeat checkup
@@ -155,7 +206,11 @@ void eedomus_writedata(String periph_id, String value){
   String data="";
   data="action=periph.value&periph_id="+periph_id+"&value="+value+"&api_secret="+api_secret+"&api_user="+api_user;
   
+<<<<<<< HEAD
   Serial.println(data);
+=======
+  //Serial.println(data);
+>>>>>>> master
   digitalWrite(BUILTIN_LED, HIGH);  // turn on LED with voltage HIGH
 
  
@@ -168,9 +223,9 @@ void eedomus_writedata(String periph_id, String value){
 		client.println(data.length()); 
 		client.println(); 
 		client.print(data); 
-                Serial.println("Message Send");
+                //Serial.println("Message Send");
    }else {
-      Serial.println("erreur connection - api.eedomus.com");
+      //Serial.println("erreur connection - api.eedomus.com");
    } 
 
    if (client.connected()) { 
