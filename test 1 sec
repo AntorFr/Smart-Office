@@ -1,0 +1,216 @@
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <Adafruit_NeoPixel.h>
+#include <Chrono.h>
+
+
+Chrono myChronoSeconds(Chrono::SECONDS);
+
+
+int MSR = 0, MSL = 0, BOTH =0, old_MSL = 0, old_MSR = 0, LAPS = 0, old_LAPS = 0;
+bool presence = false;
+
+// MILLISEC
+unsigned long previousMillis = 0;
+unsigned long lastSend = 0;
+const long sensor_interval = 60000;  // Wait this long until send again
+const long updt_interval   = 3000000;  // hearbeat - this long until send again if nothing change
+// END MILLISEC
+
+// API EEDOMUS
+const String api_user = "4a0RDk";
+const String api_secret = "c9pBLXmnSaoFiDcA";
+// END API EEDOMUS
+
+// DETECTEUR MOUVEMENT
+#define MSR_PIN D5       // Motion sensor Right Pin
+#define MSL_PIN D6       // Motion sensor Left Pin
+// END DECTECTEUR MOUVEMENT
+
+// WIFI
+const char* ssid     = "Niji-Phone";
+const char* password = "";
+WiFiClient client;
+// END WIFI
+
+// PIRANHA LED
+int ledPin = D1;
+// END PIRANHA LED
+
+// NEOPIXEL LED
+#define PIN            D3  
+#define NUMPIXELS      16 
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+int delayval = 500;
+//END NEOPIXEL LED
+
+
+void setup() {
+  
+  Serial.begin(9600);
+  Serial.println("WeMos Motion Client");
+  Serial.println("");
+  
+// DETECTEUR MOUVEMENT
+  pinMode(MSR_PIN, INPUT);
+  pinMode(MSL_PIN, INPUT);
+  MSR = digitalRead(MSR_PIN);
+  MSL = digitalRead(MSL_PIN);
+// END DETECTEUR MOUVEMENT
+
+// LEDS
+ pinMode(ledPin, OUTPUT); 
+ pixels.begin(); // This initializes the NeoPixel library.
+//END LEDS
+
+
+
+// CONNECTION WIFI
+  // Connect to your WiFi network
+  WiFi.begin(ssid);
+  Serial.print("Connecting");
+
+  // Wait for successful connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to: ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.println("");
+  Serial.print("Mac adresse: ");
+  Serial.println(WiFi.macAddress());
+  Serial.println("");
+// END CONNECTION WIFI
+
+  myChronoSeconds.restart();
+
+  for(int i=0;i<NUMPIXELS;i++){
+
+    // pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
+    pixels.setPixelColor(i, pixels.Color(255,255,255)); // Moderately bright green color.
+
+    pixels.show(); // This sends the updated pixel color to the hardware.
+
+    delay(delayval); // Delay for a period of time (in milliseconds).
+}
+}
+
+void loop() {
+
+  unsigned long currentMillis = millis();
+
+old_MSL = MSL;
+old_MSR = MSR;
+
+  MSL = digitalRead(MSL_PIN);  
+  MSR = digitalRead(MSR_PIN);
+
+old_LAPS = LAPS;
+LAPS = myChronoSeconds.elapsed();
+
+if (old_LAPS != LAPS) {
+  eedomus_writedata("391784", MSL);
+  eedomus_writedata("391785", MSR);
+}
+
+
+if (old_MSL != MSL) {
+  Serial.print("MSL :");
+  Serial.println(MSL);
+}
+if (old_MSR != MSR) {       
+  Serial.print("MSR :"); 
+  Serial.println(MSR);
+}
+  
+  if (MSL == HIGH) {
+   pixels.setPixelColor(1, pixels.Color(0,150,0));
+   pixels.setPixelColor(2, pixels.Color(0,150,0));
+   pixels.setPixelColor(3, pixels.Color(0,150,0));
+   pixels.setPixelColor(4, pixels.Color(0,150,0));
+   pixels.setPixelColor(5, pixels.Color(0,150,0));
+   pixels.setPixelColor(6, pixels.Color(0,150,0));
+   pixels.setPixelColor(7, pixels.Color(0,150,0));
+   pixels.setPixelColor(8, pixels.Color(0,150,0));
+   pixels.show();
+  }
+   if (MSL == LOW) {
+   pixels.setPixelColor(1, pixels.Color(250,0,0));
+   pixels.setPixelColor(2, pixels.Color(250,0,0));
+   pixels.setPixelColor(3, pixels.Color(250,0,0));
+   pixels.setPixelColor(4, pixels.Color(250,0,0));
+   pixels.setPixelColor(5, pixels.Color(250,0,0));
+   pixels.setPixelColor(6, pixels.Color(250,0,0));
+   pixels.setPixelColor(7, pixels.Color(250,0,0));
+   pixels.setPixelColor(8, pixels.Color(250,0,0));
+   pixels.show();
+            }
+     
+  
+
+  if (MSR == HIGH) {
+   pixels.setPixelColor(10, pixels.Color(0,150,0));
+   pixels.setPixelColor(11, pixels.Color(0,150,0));
+   pixels.setPixelColor(12, pixels.Color(0,150,0));
+   pixels.setPixelColor(13, pixels.Color(0,150,0));
+   pixels.setPixelColor(14, pixels.Color(0,150,0));
+   pixels.setPixelColor(15, pixels.Color(0,150,0));
+   pixels.setPixelColor(16, pixels.Color(0,150,0));
+   pixels.show();
+  }
+  if (MSR == LOW)  {
+   pixels.setPixelColor(10, pixels.Color(250,0,0));
+   pixels.setPixelColor(11, pixels.Color(250,0,0));
+   pixels.setPixelColor(12, pixels.Color(250,0,0));
+   pixels.setPixelColor(13, pixels.Color(250,0,0));
+   pixels.setPixelColor(14, pixels.Color(250,0,0));
+   pixels.setPixelColor(15, pixels.Color(250,0,0));
+   pixels.setPixelColor(16, pixels.Color(250,0,0));
+   pixels.show();
+            }
+
+
+ if (MSR == HIGH && MSL == HIGH) {
+  BOTH = BOTH + 1;
+ }
+
+  if (BOTH > 1) {
+        digitalWrite(ledPin, HIGH);  
+  }    else {digitalWrite(ledPin, LOW);}
+if ( myChronoSeconds.hasPassed(60) ) {
+     myChronoSeconds.restart();
+     Serial.println("RESET CHRONO");
+    BOTH = 0;
+}
+}
+
+void eedomus_writedata(String periph_id, int value){
+  String data="";
+  data="action=periph.value&periph_id="+periph_id+"&value="+value+"&api_secret="+api_secret+"&api_user="+api_user;
+  
+  Serial.println(data);
+ 
+  // Listen for http requests
+  if (client.connect("api.eedomus.com",80)) { // REPLACE WITH YOUR SERVER ADDRESS
+    client.println("POST /set?"+data+" HTTP/1.1"); 
+    client.println("Host: api.eedomus.com"); // SERVER ADDRESS HERE TOO
+    client.println("Content-Type: application/x-www-form-urlencoded"); 
+    client.print("Content-Length: "); 
+    client.println(data.length()); 
+    client.println(); 
+    client.print(data); 
+                Serial.println("Message Send");
+   }else {
+      Serial.println("erreur connection - api.eedomus.com");
+   } 
+
+   if (client.connected()) { 
+      client.stop();  // DISCONNECT FROM THE SERVER
+   }
+  
+}
